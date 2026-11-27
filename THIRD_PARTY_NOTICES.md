@@ -15,6 +15,23 @@ The full license text is included at [`src/components/react-bits/LICENSE.md`](sr
 
 The components are used inside this application and are not sold, sublicensed or redistributed as a standalone component pack.
 
+## Screenshot OCR (Tesseract.js)
+
+Screenshot text recognition uses [Tesseract.js](https://github.com/naptha/tesseract.js) 7.0.0 (Apache-2.0) and
+[Tesseract.js Core](https://github.com/naptha/tesseract.js-core) (Apache-2.0). The worker, WebAssembly core and
+English/Hindi language data are bundled in `public/tesseract/` and served from the same origin, so OCR never
+contacts a CDN and screenshots never leave the browser. License texts are included as:
+
+- `public/tesseract/LICENSE-tesseractjs.txt` — Tesseract.js (Apache-2.0)
+- `public/tesseract/LICENSE-core.txt` — Tesseract.js Core (Apache-2.0)
+- `public/tesseract/LICENSE-worker.txt` — bundled worker dependencies
+- `public/tesseract/LICENSE-tessdata.txt` — Apache-2.0 terms for the language data
+
+The `eng.traineddata.gz` and `hin.traineddata.gz` files are the `4.0.0_best_int` (LSTM-only, integerized)
+models published by [`naptha/tessdata`](https://github.com/naptha/tessdata) as the
+`@tesseract.js-data` packages (derived from
+[`tesseract-ocr/tessdata_best`](https://github.com/tesseract-ocr/tessdata_best)) under **Apache-2.0**.
+
 ## AI training datasets
 
 The local message and URL classifiers were trained on public GitHub datasets under permissive licences:

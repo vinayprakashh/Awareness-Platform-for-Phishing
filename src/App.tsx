@@ -1,6 +1,7 @@
 import {
   ArrowDown,
   ClipboardPaste,
+  ImagePlus,
   ScanSearch,
   ShieldCheck,
   Sparkles,
@@ -17,8 +18,8 @@ import Footer from './components/Footer'
 const STEPS = [
   {
     icon: ClipboardPaste,
-    title: 'Paste what you received',
-    text: 'A message, call script, suspicious link or app download prompt. Nothing is uploaded.',
+    title: 'Paste a message or screenshot',
+    text: 'A suspicious SMS, call transcript, link or screenshot. Everything stays on your device.',
   },
   {
     icon: ScanSearch,
@@ -74,8 +75,8 @@ export default function App() {
                 />
 
                 <p className="soft-text mt-6 max-w-xl text-base leading-relaxed sm:text-lg">
-                  Paste a suspicious message, call transcript or link. Get an instant risk score, the exact red
-                  flags behind it, and simple steps to stay safe — all inside your browser.
+                  Paste a suspicious message, screenshot, call transcript or link. Get an instant risk score, the
+                  exact red flags behind it, and simple steps to stay safe — all inside your browser.
                 </p>
 
                 <div className="mt-9 flex flex-wrap items-center gap-3">
@@ -99,8 +100,12 @@ export default function App() {
                     Privacy-first analysis
                   </span>
                   <span className="inline-flex items-center gap-2">
+                    <ImagePlus className="size-4 text-sky-300" aria-hidden="true" />
+                    Screenshot OCR on device
+                  </span>
+                  <span className="inline-flex items-center gap-2">
                     <Zap className="size-4 text-amber-300" aria-hidden="true" />
-                    Results in under 1.5 s
+                    Text results in under 1.5 s
                   </span>
                 </div>
               </div>

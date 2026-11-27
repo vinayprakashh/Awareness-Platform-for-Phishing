@@ -1,6 +1,6 @@
 # Training data provenance
 
-SafeSignal's browser-side AI models were trained on the following **public GitHub
+VerifyPoint's browser-side AI models were trained on the following **public GitHub
 datasets with explicit licences**. Raw dataset files are **not committed**;
 only the exported numeric weights (`src/ml/*_model.json`) and holdout metrics
 (`ml/metrics.json`) are included in this repository.
@@ -34,7 +34,7 @@ only the exported numeric weights (`src/ml/*_model.json`) and holdout metrics
 2. Run:
 
    ```powershell
-   $env:SAFESIGNAL_DATA='C:\path\to\downloaded\files'
+   $env:VERIFYPOINT_DATA='C:\path\to\downloaded\files'
    python ml/train_model.py
    ```
 

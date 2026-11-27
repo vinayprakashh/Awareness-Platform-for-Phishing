@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """
-Train the compact classifiers used by SafeSignal's browser-side AI screening.
+Train the compact classifiers used by VerifyPoint's browser-side AI screening.
 
 The models are deliberately small: TF-IDF over word/character n-grams plus a
 logistic-regression classifier, exported as JSON weights so inference can run
 entirely in the browser with no network requests and no user-data upload.
 
 Raw datasets are NOT committed. Put the downloaded CSV/JSONL files in ./data
-(or point SAFESIGNAL_DATA at another folder) and run:
+(or point VERIFYPOINT_DATA at another folder) and run:
 
     python ml/train_model.py
 
@@ -29,7 +29,7 @@ from typing import Callable, Iterable, Sequence
 import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
-DATA = Path(os.environ.get("SAFESIGNAL_DATA", str(Path(__file__).resolve().parent / "data")))
+DATA = Path(os.environ.get("VERIFYPOINT_DATA", str(Path(__file__).resolve().parent / "data")))
 OUT = ROOT / "src" / "ml"
 SEED = 20261127
 
@@ -431,7 +431,7 @@ def train_url() -> dict:
 def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
     if not DATA.exists():
-        raise SystemExit(f"Dataset folder not found: {DATA}\nSet SAFESIGNAL_DATA or copy files into ml/data.")
+        raise SystemExit(f"Dataset folder not found: {DATA}\nSet VERIFYPOINT_DATA or copy files into ml/data.")
     text_metrics = train_text()
     url_metrics = train_url()
     report = {

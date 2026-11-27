@@ -1,12 +1,13 @@
-# SafeSignal — Cyber Security Awareness Platform
+# VerifyPoint — Cyber Security Awareness Platform
 
-A lightweight, browser-based web app that checks suspicious messages, call transcripts and links for phishing, digital arrest scams and malicious apps. It combines an explainable rule engine with two locally trained AI models, then returns a 0–100 risk score, red flags with matched evidence, and clear next steps with official Indian cybercrime reporting channels.
+A lightweight, browser-based web app that checks suspicious messages, screenshots, call transcripts and links for phishing, digital arrest scams and malicious apps. It uses local OCR plus an explainable rule engine and two locally trained AI models, then returns a 0–100 risk score, red flags with matched evidence, and clear next steps with official Indian cybercrime reporting channels.
 
 Built from the product requirements document for **Project #19** and uses selected [React Bits](https://github.com/DavidHDev/react-bits) components for the UI.
 
 ## Features
 
 - **Instant analyzer (FR-01, FR-02):** paste text, a URL or a call script and get a score in milliseconds.
+- **Screenshot detection:** paste (`Ctrl/⌘ + V`), drop or upload a screenshot; on-device OCR reads English/Hindi text and feeds the same detector.
 - **Explainable red flags (FR-03):** each detected trigger is shown with the exact matched text, why it matters and its category.
 - **AI second opinion:** two compact TF-IDF + logistic-regression models (message and URL) trained on licensed public GitHub datasets; their scores, confidence and top influences are shown in plain language.
 - **Threat guides (FR-04):** plain-language modules for phishing, digital arrest scams and malicious apps with real-world examples.
@@ -18,6 +19,14 @@ Built from the product requirements document for **Project #19** and uses select
 ## Detection logic
 
 The analyzer is deliberately **hybrid** so that no single method decides the result.
+
+### 0. Screenshot intake (optional)
+
+`src/lib/ocr.ts` lazily loads a bundled Tesseract.js worker, core and English +
+Hindi language data from `public/tesseract/`. OCR runs in a Web Worker on your
+device; the image is never uploaded, cached or stored. The recognised text is
+shown back to you and passed through the exact same text and link checks as a
+pasted message.
 
 ### 1. Transparent rules
 
@@ -51,8 +60,9 @@ rule-based red flag. Holdout results are in [`ml/metrics.json`](ml/metrics.json)
 - **25–54:** Moderate
 - **55–100:** High
 
-No network request, login, cookie or storage is involved. The model weights are
-static JSON files; your input is processed in memory and discarded.
+No upload, login, cookie or scan history is involved. The model weights and OCR
+assets are static files served with the site; your text and screenshots are
+processed in memory and discarded.
 
 ## Getting started
 
@@ -72,7 +82,7 @@ To reproduce or improve them, download the datasets listed in
 [`ml/SOURCES.md`](ml/SOURCES.md) into a local folder and run:
 
 ```powershell
-$env:SAFESIGNAL_DATA='C:\path\to\downloaded\files'
+$env:VERIFYPOINT_DATA='C:\path\to\downloaded\files'
 python ml/train_model.py
 ```
 
@@ -84,8 +94,8 @@ The Vite config uses `base: './'`, so the contents of `dist/` can be hosted on G
 
 ## Disclaimer
 
-The analyzer combines pattern heuristics with statistical models. It cannot detect every cybercrime, can miss novel scams and may flag harmless text. Its scores are guidance, not proof. Always verify unexpected requests through official channels. This tool does not intercept calls or messages, analyze APK binaries, or store scan history.
+The analyzer combines screenshot OCR, pattern heuristics and statistical models. OCR can misread text, especially in low-resolution images or unsupported scripts, and the analyzer cannot detect every cybercrime. Its scores are guidance, not proof. Always verify unexpected requests through official channels. This tool does not intercept calls or messages, analyze APK binaries, or store scan history.
 
 ## Acknowledgements
 
-UI animation components from [React Bits](https://github.com/DavidHDev/react-bits) and the licensed training datasets are credited in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). Dataset details, citations and reproduction steps are in [`ml/SOURCES.md`](ml/SOURCES.md).
+UI animation components from [React Bits](https://github.com/DavidHDev/react-bits), the OCR engine (Tesseract.js) and the licensed training datasets are credited in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). Dataset details, citations and reproduction steps are in [`ml/SOURCES.md`](ml/SOURCES.md).
