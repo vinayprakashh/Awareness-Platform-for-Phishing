@@ -9,7 +9,7 @@ export default function Footer() {
       <div className="mx-auto grid max-w-7xl gap-8 px-5 py-12 sm:px-8 md:grid-cols-3">
         <div>
           <div className="flex items-center gap-2 font-bold text-white">
-            <img src={verifypointLogo} alt="" className="size-6 shrink-0 rounded-md object-contain" />
+            <img src={verifypointLogo} alt="" className="brand-logo size-6 shrink-0 rounded-md object-contain" />
             VerifyPoint
           </div>
           <p className="soft-text mt-3 max-w-sm text-sm leading-relaxed">

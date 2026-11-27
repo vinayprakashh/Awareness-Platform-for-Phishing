@@ -32,7 +32,7 @@ export default function Header() {
           <img
             src={verifypointLogo}
             alt=""
-            className="size-10 shrink-0 rounded-xl object-contain shadow-lg shadow-sky-500/10"
+            className="brand-logo size-10 shrink-0 rounded-xl object-contain shadow-lg shadow-sky-500/10"
           />
           <span className="leading-tight">
             <span className="block text-lg font-bold tracking-tight text-white">VerifyPoint</span>
