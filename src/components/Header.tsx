@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
-import { Menu, ShieldCheck, X } from 'lucide-react'
+import { Menu, X } from 'lucide-react'
 import ThemeToggle from './ThemeToggle'
+import verifypointLogo from '../assets/verifypoint-logo.png'
 
 const LINKS = [
   { href: '#scanner', label: 'Check a message' },
@@ -28,9 +29,11 @@ export default function Header() {
     >
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-4 sm:px-8">
         <a href="#top" className="group flex items-center gap-3 rounded-lg">
-          <span className="grid size-10 place-items-center rounded-xl bg-gradient-to-br from-sky-400 to-violet-500 text-[#04101f] shadow-lg shadow-sky-500/20">
-            <ShieldCheck className="size-6" strokeWidth={2.4} />
-          </span>
+          <img
+            src={verifypointLogo}
+            alt=""
+            className="size-10 shrink-0 rounded-xl object-contain shadow-lg shadow-sky-500/10"
+          />
           <span className="leading-tight">
             <span className="block text-lg font-bold tracking-tight text-white">VerifyPoint</span>
             <span className="block text-[0.65rem] font-semibold tracking-[0.16em] text-sky-300/80 uppercase">
