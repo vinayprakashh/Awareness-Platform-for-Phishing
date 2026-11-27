@@ -8,6 +8,7 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 import SpotlightCard from './react-bits/SpotlightCard'
+import { useTheme } from '../lib/theme'
 
 interface Guide {
   id: string
@@ -63,12 +64,16 @@ const GUIDES: Guide[] = [
   },
 ]
 
-const cardStyle = {
-  '--spotlight-card-surface': 'rgba(8, 19, 35, 0.94)',
-  '--spotlight-card-shadow': '0 30px 70px -45px rgba(0, 0, 0, 0.95)',
-} as CSSProperties
-
 export default function Guides() {
+  const theme = useTheme()
+  const cardStyle = {
+    '--spotlight-card-surface': theme === 'dark' ? 'rgba(8, 19, 35, 0.94)' : '#ffffff',
+    '--spotlight-card-shadow':
+      theme === 'dark'
+        ? '0 30px 70px -45px rgba(0, 0, 0, 0.95)'
+        : '0 18px 40px -24px rgba(15, 23, 42, 0.2)',
+  } as CSSProperties
+
   return (
     <section id="learn" className="mx-auto max-w-7xl px-5 py-20 sm:px-8 sm:py-28">
       <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
@@ -92,6 +97,7 @@ export default function Guides() {
               spotlightColor={guide.accent}
               intensity={0.22}
               spotlightSize={280}
+              theme={theme}
               className="flex h-full flex-col border border-white/10 p-6 sm:p-7"
               style={cardStyle}
             >

@@ -40,7 +40,7 @@ export default function App() {
 
       <main>
         <section id="top" className="relative overflow-hidden">
-          <div className="pointer-events-none absolute inset-x-0 top-0 h-[720px] opacity-75" aria-hidden="true">
+          <div className="hero-aurora pointer-events-none absolute inset-x-0 top-0 h-[720px] opacity-75" aria-hidden="true">
             <Aurora
               colorStops={['#0ea5e9', '#6366f1', '#a855f7', '#22d3ee']}
               amplitude={1.1}
@@ -51,7 +51,7 @@ export default function App() {
               mouseInteraction
             />
           </div>
-          <div className="pointer-events-none absolute inset-x-0 top-0 h-[720px] bg-gradient-to-b from-transparent via-[#050c18]/45 to-[#050c18]" aria-hidden="true" />
+          <div className="hero-fade pointer-events-none absolute inset-x-0 top-0 h-[720px]" aria-hidden="true" />
 
           <div className="relative mx-auto max-w-7xl px-5 pb-20 pt-16 sm:px-8 sm:pb-28 sm:pt-24">
             <div className="grid items-center gap-14 lg:grid-cols-[1.05fr_0.95fr]">

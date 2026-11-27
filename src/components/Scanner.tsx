@@ -27,6 +27,7 @@ import { MODEL_INFO } from '../lib/aiModel'
 import { firstClipboardImage, firstImageFile, imageIssue } from '../lib/imageIntake'
 import type { OcrProgress } from '../lib/ocr'
 import { analyze, type Analysis, type SignalCategory } from '../lib/riskEngine'
+import { useTheme } from '../lib/theme'
 import { SAMPLES, type Sample } from '../lib/samples'
 
 const CATEGORY_META: Record<SignalCategory, { label: string; icon: LucideIcon }> = {
@@ -118,6 +119,7 @@ function percent(value: number): string {
 type InputMode = 'text' | 'screenshot'
 
 export default function Scanner() {
+  const theme = useTheme()
   const [mode, setMode] = useState<InputMode>('text')
   const [input, setInput] = useState('')
   const [analysis, setAnalysis] = useState<Analysis | null>(null)
@@ -285,7 +287,7 @@ export default function Scanner() {
             </div>
             <div className="flex items-center gap-2 text-xs text-slate-400">
               <LockKeyhole className="size-4 text-emerald-300" aria-hidden="true" />
-              Runs in your browser · nothing saved
+              Runs in your browser · no scan history
             </div>
           </div>
 
@@ -471,7 +473,8 @@ export default function Scanner() {
               duration={3.5}
               glow={0.5}
               radius={999}
-              backgroundColor="#0d2340"
+              theme={theme}
+              backgroundColor={theme === 'dark' ? '#0d2340' : '#ffffff'}
               className="px-7 py-3.5 text-sm font-bold text-white"
             >
               {scanning

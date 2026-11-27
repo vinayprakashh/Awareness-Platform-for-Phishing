@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Menu, ShieldCheck, X } from 'lucide-react'
+import ThemeToggle from './ThemeToggle'
 
 const LINKS = [
   { href: '#scanner', label: 'Check a message' },
@@ -56,6 +57,8 @@ export default function Header() {
         >
           Check now
         </a>
+
+        <ThemeToggle />
 
         <button
           type="button"

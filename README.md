@@ -13,7 +13,8 @@ Built from the product requirements document for **Project #19** and uses select
 - **Threat guides (FR-04):** plain-language modules for phishing, digital arrest scams and malicious apps with real-world examples.
 - **Safety checklist & helplines (FR-05):** five-step checklist, official channels (1930, cybercrime.gov.in, 112, 14567) and guidance if you already paid.
 - **Sample scam simulator (FR-06):** one-tap examples covering scams and a benign message.
-- **Privacy-first:** analysis runs entirely in the browser in memory. Nothing is stored or sent to a server. No login.
+- **Privacy-first:** analysis runs entirely in the browser in memory. Nothing you scan is stored or sent to a server. No login. Only your light/dark theme choice is saved locally.
+- **Theme switcher:** toggle between dark and light themes from the header; your choice persists and defaults to your system preference.
 - **Accessible & responsive:** mobile-first layout, high-contrast green/amber/red indicators, keyboard-friendly controls and reduced-motion support.
 
 ## Detection logic
@@ -62,7 +63,8 @@ rule-based red flag. Holdout results are in [`ml/metrics.json`](ml/metrics.json)
 
 No upload, login, cookie or scan history is involved. The model weights and OCR
 assets are static files served with the site; your text and screenshots are
-processed in memory and discarded.
+processed in memory and discarded. The only value kept in `localStorage` is the
+`verifypoint-theme` preference set by the theme switcher.
 
 ## Getting started
 

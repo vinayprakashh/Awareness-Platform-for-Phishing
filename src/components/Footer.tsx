@@ -31,7 +31,8 @@ export default function Footer() {
           <p className="text-xs font-bold tracking-[0.16em] text-slate-300 uppercase">Privacy &amp; accuracy</p>
           <p className="soft-text mt-3 flex gap-2 text-sm leading-relaxed">
             <LockKeyhole className="mt-0.5 size-4 shrink-0 text-emerald-300" aria-hidden="true" />
-            Your text and screenshots are analyzed in memory in your browser and are never uploaded or stored.
+            Your text and screenshots are analyzed in memory in your browser and are never uploaded or stored. Only
+            your light/dark theme choice is saved on this device.
           </p>
           <p className="mt-3 text-xs leading-relaxed text-slate-500">
             Results use pattern-based heuristics and can miss new scams. Always verify through official channels.
