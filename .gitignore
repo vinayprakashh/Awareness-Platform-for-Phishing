@@ -12,6 +12,16 @@ dist
 dist-ssr
 *.local
 
+# Environment files (this app needs none; keep the example if you add one)
+.env
+.env.*
+!.env.example
+
+# Host build metadata and coverage output
+.vercel/
+.netlify/
+coverage/
+
 # Raw ML training datasets are downloaded locally and never committed.
 ml/data/
 
