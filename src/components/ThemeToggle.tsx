@@ -8,7 +8,7 @@ export default function ThemeToggle() {
   return (
     <button
       type="button"
-      className="grid size-10 shrink-0 place-items-center rounded-xl border border-white/10 bg-white/5 text-slate-200 transition hover:border-sky-300/40 hover:text-white"
+      className="grid size-10 shrink-0 place-items-center rounded-lg border border-white/10 bg-white/5 text-slate-200 transition hover:border-sky-300/40 hover:text-white"
       onClick={() => setTheme(next)}
       aria-label={`Switch to ${next} theme`}
       title={`Switch to ${next} theme`}

@@ -1,19 +1,9 @@
 import { lazy, Suspense, type ReactNode } from 'react'
-import {
-  ArrowDown,
-  ClipboardPaste,
-  ImagePlus,
-  ScanSearch,
-  ShieldCheck,
-  Sparkles,
-  Zap,
-} from 'lucide-react'
+import { ArrowDown, ClipboardPaste, ImagePlus, ScanSearch, ShieldCheck, Zap } from 'lucide-react'
 import Header from './components/Header'
 import Footer from './components/Footer'
-import { useIdleReady, useNearViewport } from './lib/useNearViewport'
+import { useNearViewport } from './lib/useNearViewport'
 
-const Aurora = lazy(() => import('./components/react-bits/Aurora'))
-const BlurText = lazy(() => import('./components/react-bits/BlurText'))
 const Scanner = lazy(() => import('./components/Scanner'))
 const Guides = lazy(() => import('./components/Guides'))
 const Safety = lazy(() => import('./components/Safety'))
@@ -36,8 +26,11 @@ const STEPS = [
   },
 ]
 
-const TAGLINE_CLASS = 'mt-4 text-2xl font-semibold text-sky-200 sm:text-3xl'
-const TAGLINE = 'Spot the scam before it spots you.'
+const EVIDENCE = [
+  { title: 'Urgency pressure', detail: '“account is blocked” · “Click immediately”' },
+  { title: 'Lookalike domain', detail: 'sbi-kyc-update.xyz — not sbi.co.in' },
+  { title: 'Credential request', detail: '“verify” your account details' },
+]
 
 function SectionPlaceholder({ minHeight }: { minHeight: number }) {
   return (
@@ -73,59 +66,30 @@ function DeferredSection({
 }
 
 export default function App() {
-  const animationsReady = useIdleReady(900)
-
   return (
     <div className="min-h-screen bg-[#050c18] text-slate-100">
       <Header />
 
       <main>
         <section id="top" className="relative overflow-hidden">
-          <div className="hero-aurora pointer-events-none absolute inset-x-0 top-0 h-[720px] opacity-75" aria-hidden="true">
-            {animationsReady && (
-              <Suspense fallback={null}>
-                <Aurora
-                  colorStops={['#0ea5e9', '#6366f1', '#a855f7', '#22d3ee']}
-                  amplitude={1.1}
-                  blend={0.65}
-                  speed={0.7}
-                  glow={0.75}
-                  opacity={0.85}
-                  mouseInteraction
-                />
-              </Suspense>
-            )}
-          </div>
+          <div className="hero-grid pointer-events-none absolute inset-0" aria-hidden="true" />
           <div className="hero-fade pointer-events-none absolute inset-x-0 top-0 h-[720px]" aria-hidden="true" />
 
           <div className="relative mx-auto max-w-7xl px-5 pb-20 pt-16 sm:px-8 sm:pb-28 sm:pt-24">
             <div className="grid items-center gap-14 lg:grid-cols-[1.05fr_0.95fr]">
               <div>
-                <span className="inline-flex items-center gap-2 rounded-full border border-sky-300/25 bg-sky-300/10 px-4 py-2 text-xs font-bold tracking-wide text-sky-100 uppercase">
-                  <Sparkles className="size-3.5" aria-hidden="true" />
+                <span className="inline-flex items-center gap-2 rounded-lg border border-sky-300/25 bg-sky-300/10 px-3 py-1.5 text-xs font-bold tracking-wide text-sky-100 uppercase">
+                  <ShieldCheck className="size-3.5" aria-hidden="true" />
                   Free · private · no login
                 </span>
 
-                <h1 className="mt-7 text-5xl leading-[1.05] font-bold tracking-tight text-white sm:text-6xl lg:text-7xl">
+                <h1 className="mt-7 font-display text-5xl font-semibold leading-[1.03] tracking-[-0.035em] text-white sm:text-6xl lg:text-7xl">
                   Pause before
                   <br />
                   you click.
                 </h1>
-                {animationsReady ? (
-                  <Suspense fallback={<p className={TAGLINE_CLASS}>{TAGLINE}</p>}>
-                    <BlurText
-                      text={TAGLINE}
-                      animateBy="words"
-                      direction="top"
-                      delay={110}
-                      className={TAGLINE_CLASS}
-                    />
-                  </Suspense>
-                ) : (
-                  <p className={TAGLINE_CLASS}>{TAGLINE}</p>
-                )}
 
-                <p className="soft-text mt-6 max-w-xl text-base leading-relaxed sm:text-lg">
+                <p className="soft-text mt-7 max-w-xl text-base leading-relaxed sm:text-lg">
                   Paste a suspicious message, screenshot, call transcript or link. Get an instant risk score, the
                   exact red flags behind it, and simple steps to stay safe — all inside your browser.
                 </p>
@@ -133,13 +97,13 @@ export default function App() {
                 <div className="mt-9 flex flex-wrap items-center gap-3">
                   <a
                     href="#scanner"
-                    className="inline-flex items-center gap-2 rounded-full bg-sky-300 px-7 py-3.5 text-sm font-bold text-[#04101f] shadow-lg shadow-sky-500/20 transition hover:bg-sky-200"
+                    className="inline-flex items-center gap-2 rounded-lg bg-sky-300 px-6 py-3.5 text-sm font-bold text-[#04101f] shadow-lg shadow-sky-500/10 transition hover:bg-sky-200"
                   >
                     Check a message <ArrowDown className="size-4" aria-hidden="true" />
                   </a>
                   <a
                     href="#learn"
-                    className="inline-flex items-center gap-2 rounded-full border border-white/15 px-7 py-3.5 text-sm font-semibold text-slate-100 transition hover:border-white/35 hover:bg-white/5"
+                    className="inline-flex items-center gap-2 rounded-lg border border-white/15 px-6 py-3.5 text-sm font-semibold text-slate-100 transition hover:border-white/35 hover:bg-white/5"
                   >
                     Learn the scams
                   </a>
@@ -161,40 +125,111 @@ export default function App() {
                 </div>
               </div>
 
-              <div className="animate-float-slow relative mx-auto w-full max-w-lg">
-                <div className="absolute -inset-6 rounded-[2.5rem] bg-gradient-to-br from-sky-400/15 via-violet-400/10 to-transparent blur-2xl" aria-hidden="true" />
-                <div className="panel relative p-6 sm:p-8">
-                  <div className="flex items-center justify-between">
-                    <span className="eyebrow">Example result</span>
-                    <span className="rounded-full border border-rose-400/30 bg-rose-400/10 px-3 py-1 text-xs font-bold text-rose-200">
-                      HIGH RISK
+              <div className="relative mx-auto w-full max-w-[30rem]">
+                <div className="hero-report relative p-4 sm:p-5">
+                  <div className="flex items-start justify-between gap-3 border-b border-white/10 pb-4">
+                    <div className="flex items-center gap-3">
+                      <span className="grid size-9 shrink-0 place-items-center rounded-lg border border-sky-300/25 bg-sky-300/10 text-sky-200">
+                        <ScanSearch className="size-4" aria-hidden="true" />
+                      </span>
+                      <div>
+                        <p className="eyebrow">Analysis report</p>
+                        <p className="mt-0.5 font-mono text-[0.65rem] tracking-wide text-slate-500 uppercase">
+                          Case VP-0427 · SMS intercept
+                        </p>
+                      </div>
+                    </div>
+                    <span className="shrink-0 rounded-lg border border-rose-400/30 bg-rose-400/10 px-2.5 py-1.5 text-[0.65rem] font-bold tracking-[0.12em] text-rose-200 uppercase">
+                      High risk
                     </span>
                   </div>
 
-                  <div className="mt-5 rounded-xl border border-white/10 bg-black/25 p-4 text-sm leading-relaxed text-slate-300">
-                    <span className="text-slate-500">SMS · unknown sender</span>
-                    <p className="mt-2">
-                      “Your <mark className="signal-highlight">account is blocked</mark>.{' '}
-                      <mark className="signal-highlight">Click immediately</mark> at sbi-kyc-update.xyz to verify.”
-                    </p>
-                  </div>
-
-                  <div className="mt-5 space-y-2">
-                    {[
-                      'Urgency and pressure language',
-                      'Lookalike bank domain',
-                      'Request to verify account details',
-                    ].map((flag) => (
-                      <div key={flag} className="flex items-center gap-3 rounded-lg border border-white/5 bg-white/[0.03] px-4 py-3 text-sm text-slate-200">
-                        <span className="size-2 shrink-0 rounded-full bg-rose-300" />
-                        {flag}
+                  <div className="sms-device mt-5">
+                    <div className="sms-screen rounded-lg px-3 py-3">
+                      <div className="flex items-center justify-between font-mono text-[0.6rem] tracking-wide text-slate-500 uppercase">
+                        <span>Unknown sender</span>
+                        <span>Today · 10:42</span>
                       </div>
-                    ))}
+                      <p className="mt-3 text-sm leading-relaxed text-slate-200">
+                        “Your{' '}
+                        <mark className="signal-highlight">
+                          account is blocked
+                          <sup className="ml-0.5 font-mono text-[0.55rem] text-rose-100">01</sup>
+                        </mark>
+                        .{' '}
+                        <mark className="signal-highlight">
+                          Click immediately
+                          <sup className="ml-0.5 font-mono text-[0.55rem] text-rose-100">02</sup>
+                        </mark>{' '}
+                        at{' '}
+                        <mark className="signal-highlight">
+                          sbi-kyc-update.xyz
+                          <sup className="ml-0.5 font-mono text-[0.55rem] text-rose-100">03</sup>
+                        </mark>{' '}
+                        to verify.”
+                      </p>
+                    </div>
                   </div>
 
-                  <div className="mt-6 flex items-center gap-2 rounded-xl border border-emerald-400/20 bg-emerald-400/5 px-4 py-3 text-sm text-emerald-100">
-                    <ShieldCheck className="size-4 shrink-0 text-emerald-300" aria-hidden="true" />
-                    Do not click. Check with your bank directly.
+                  <div className="mt-5 flex items-center gap-5 border-b border-white/10 pb-5">
+                    <div
+                      className="risk-gauge relative grid size-24 shrink-0 place-items-center rounded-full"
+                      role="img"
+                      aria-label="Risk score 87 out of 100"
+                    >
+                      <div className="grid size-[calc(100%-10px)] place-items-center rounded-full bg-[#050e1d] text-center">
+                        <div>
+                          <span className="block font-display text-3xl font-semibold leading-none text-white">87</span>
+                          <span className="mt-1 block font-mono text-[0.55rem] tracking-[0.12em] text-slate-400 uppercase">
+                            Risk / 100
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <div>
+                      <p className="font-display text-xl font-semibold text-white">Treat as a scam</p>
+                      <p className="soft-text mt-1 text-xs leading-relaxed">
+                        3 signals in 1 message. Do not open the link or call the number provided.
+                      </p>
+                      <div className="mt-3 flex gap-1" aria-hidden="true">
+                        {Array.from({ length: 10 }, (_, index) => (
+                          <span
+                            key={index}
+                            className={`h-1 flex-1 rounded-sm ${index < 9 ? 'bg-rose-400/80' : 'bg-white/10'}`}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-5">
+                    <div className="flex items-center justify-between">
+                      <p className="eyebrow">Evidence</p>
+                      <span className="font-mono text-[0.65rem] text-slate-500">3 / 3 signals</span>
+                    </div>
+                    <ol className="mt-3 space-y-2">
+                      {EVIDENCE.map((item, index) => (
+                        <li
+                          key={item.title}
+                          className="grid grid-cols-[auto_1fr] gap-3 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2.5"
+                        >
+                          <span className="mt-0.5 grid size-5 place-items-center rounded-md border border-rose-400/25 bg-rose-400/10 font-mono text-[0.6rem] font-bold text-rose-200">
+                            {String(index + 1).padStart(2, '0')}
+                          </span>
+                          <div>
+                            <p className="text-xs font-semibold text-slate-100">{item.title}</p>
+                            <p className="mt-0.5 font-mono text-[0.68rem] leading-relaxed text-slate-400">
+                              {item.detail}
+                            </p>
+                          </div>
+                        </li>
+                      ))}
+                    </ol>
+                  </div>
+
+                  <div className="mt-5 flex items-start gap-2.5 rounded-lg border border-emerald-400/20 bg-emerald-400/5 px-3 py-3 text-xs leading-relaxed text-emerald-100">
+                    <ShieldCheck className="mt-0.5 size-4 shrink-0 text-emerald-300" aria-hidden="true" />
+                    Do not click. Check with your bank directly using the number on their official website.
                   </div>
                 </div>
               </div>

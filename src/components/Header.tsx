@@ -32,7 +32,7 @@ export default function Header() {
           <img
             src={verifypointLogo}
             alt=""
-            className="brand-logo size-10 shrink-0 rounded-xl object-contain shadow-lg shadow-sky-500/10"
+            className="brand-logo size-10 shrink-0 rounded-lg object-contain shadow-lg shadow-sky-500/10"
           />
           <span className="leading-tight">
             <span className="block text-lg font-bold tracking-tight text-white">VerifyPoint</span>
@@ -47,7 +47,7 @@ export default function Header() {
             <a
               key={link.href}
               href={link.href}
-              className="rounded-full px-4 py-2 text-sm font-medium text-slate-300 transition hover:bg-white/5 hover:text-white"
+              className="rounded-lg px-4 py-2 text-sm font-medium text-slate-300 transition hover:bg-white/5 hover:text-white"
             >
               {link.label}
             </a>
@@ -56,7 +56,7 @@ export default function Header() {
 
         <a
           href="#scanner"
-          className="hidden rounded-full border border-sky-300/30 bg-sky-300/10 px-5 py-2.5 text-sm font-semibold text-sky-100 transition hover:border-sky-300/60 hover:bg-sky-300/20 md:inline-flex"
+          className="hidden rounded-lg border border-sky-300/30 bg-sky-300/10 px-5 py-2.5 text-sm font-semibold text-sky-100 transition hover:border-sky-300/60 hover:bg-sky-300/20 md:inline-flex"
         >
           Check now
         </a>
@@ -65,7 +65,7 @@ export default function Header() {
 
         <button
           type="button"
-          className="grid size-11 place-items-center rounded-xl border border-white/10 bg-white/5 text-white md:hidden"
+          className="grid size-11 place-items-center rounded-lg border border-white/10 bg-white/5 text-white md:hidden"
           aria-expanded={open}
           aria-controls="mobile-nav"
           aria-label={open ? 'Close menu' : 'Open menu'}
@@ -82,7 +82,7 @@ export default function Header() {
               key={link.href}
               href={link.href}
               onClick={() => setOpen(false)}
-              className="block rounded-xl px-3 py-3 text-base font-medium text-slate-200 hover:bg-white/5"
+              className="block rounded-lg px-3 py-3 text-base font-medium text-slate-200 hover:bg-white/5"
             >
               {link.label}
             </a>
