@@ -1,0 +1,32 @@
+{
+  "generatedBy": "ml/train_model.py",
+  "randomSeed": 20261127,
+  "framework": "NumPy TF-IDF + logistic regression (mini-batch SGD)",
+  "privacy": "Inference runs locally in the browser; raw datasets are not distributed.",
+  "models": {
+    "text": {
+      "accuracy": 0.8136,
+      "precision": 1.0,
+      "recall": 0.8024,
+      "f1": 0.8903,
+      "rocAuc": 0.9862,
+      "truePositives": 3126,
+      "falsePositives": 0,
+      "falseNegatives": 770,
+      "trueNegatives": 236,
+      "threshold": 0.5
+    },
+    "url": {
+      "accuracy": 0.9194,
+      "precision": 0.888,
+      "recall": 0.958,
+      "f1": 0.9217,
+      "rocAuc": 0.9749,
+      "truePositives": 4977,
+      "falsePositives": 628,
+      "falseNegatives": 218,
+      "trueNegatives": 4677,
+      "threshold": 0.5
+    }
+  }
+}

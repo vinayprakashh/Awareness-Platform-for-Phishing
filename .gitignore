@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 
+# Raw ML training datasets are downloaded locally and never committed.
+ml/data/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

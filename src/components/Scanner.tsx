@@ -21,6 +21,7 @@ import {
 import ClickSpark from './react-bits/ClickSpark'
 import StarBorder from './react-bits/StarBorder'
 import ScoreGauge from './ScoreGauge'
+import { MODEL_INFO } from '../lib/aiModel'
 import { analyze, type Analysis, type SignalCategory } from '../lib/riskEngine'
 import { SAMPLES, type Sample } from '../lib/samples'
 
@@ -92,6 +93,22 @@ function HighlightedText({ text, terms }: { text: string; terms: string[] }) {
   if (cursor < text.length) nodes.push(<span key="tail">{text.slice(cursor)}</span>)
 
   return <p className="text-sm leading-relaxed whitespace-pre-wrap text-slate-300">{nodes}</p>
+}
+
+function AiStat({ label, value, note }: { label: string; value: string; note: string }) {
+  return (
+    <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
+      <p className="text-[0.7rem] font-semibold tracking-wide text-slate-400 uppercase">{label}</p>
+      <p className="mt-1 text-xl font-bold text-white">{value}</p>
+      <p className="mt-1 truncate text-[0.7rem] text-slate-500" title={note}>
+        {note}
+      </p>
+    </div>
+  )
+}
+
+function percent(value: number): string {
+  return `${Math.round(value * 100)}%`
 }
 
 export default function Scanner() {
@@ -261,7 +278,7 @@ export default function Scanner() {
           {scanning && (
             <div className="mt-8 flex items-center gap-3 rounded-2xl border border-sky-300/20 bg-sky-300/5 p-5 text-sm text-sky-100" role="status">
               <span className="size-4 animate-spin rounded-full border-2 border-sky-300/30 border-t-sky-300" />
-              Checking keywords, links and app-download signals…
+              Checking keywords, links and local AI model signals…
             </div>
           )}
 
@@ -308,18 +325,23 @@ export default function Scanner() {
                     <ul className="mt-5 space-y-3">
                       {analysis.signals.map((signal) => {
                         const meta = CATEGORY_META[signal.category]
-                        const Icon = meta.icon
+                        const isAi = signal.source === 'ai'
+                        const Icon = isAi ? Sparkles : meta.icon
                         return (
                           <li key={signal.id} className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
                             <div className="flex items-start gap-3">
-                              <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-rose-400/10 text-rose-300">
+                              <span
+                                className={`grid size-9 shrink-0 place-items-center rounded-lg ${isAi ? 'bg-violet-400/10 text-violet-300' : 'bg-rose-400/10 text-rose-300'}`}
+                              >
                                 <Icon className="size-5" aria-hidden="true" />
                               </span>
                               <div className="min-w-0">
                                 <div className="flex flex-wrap items-center gap-2">
                                   <span className="font-semibold text-white">{signal.label}</span>
-                                  <span className="rounded-full bg-white/5 px-2 py-0.5 text-[0.65rem] font-semibold tracking-wide text-slate-400 uppercase">
-                                    {meta.label}
+                                  <span
+                                    className={`rounded-full px-2 py-0.5 text-[0.65rem] font-semibold tracking-wide uppercase ${isAi ? 'bg-violet-400/15 text-violet-200' : 'bg-white/5 text-slate-400'}`}
+                                  >
+                                    {isAi ? 'AI model' : meta.label}
                                   </span>
                                 </div>
                                 <p className="mt-1 text-sm leading-relaxed text-slate-300">{signal.detail}</p>
@@ -391,10 +413,66 @@ export default function Scanner() {
                 </div>
               </div>
 
+              <div className="mt-5 rounded-2xl border border-violet-300/20 bg-violet-300/[0.04] p-5 sm:p-6">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <h4 className="flex items-center gap-2 text-base font-bold text-white">
+                      <Sparkles className="size-5 text-violet-300" aria-hidden="true" />
+                      AI second opinion
+                    </h4>
+                    <p className="soft-text mt-1 max-w-2xl text-xs leading-relaxed">
+                      Two compact models trained on public phishing datasets review the same message and links. Their
+                      blended opinion contributes up to 38% of the score above.
+                    </p>
+                  </div>
+                  <span className="rounded-full border border-violet-300/25 bg-violet-300/10 px-3 py-1 text-xs font-bold text-violet-100">
+                    {percent(analysis.ai.confidence)} signal strength
+                  </span>
+                </div>
+
+                <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                  <AiStat label="Message model" value={percent(analysis.ai.textProbability)} note="scam-pattern score" />
+                  <AiStat
+                    label="Link model"
+                    value={analysis.ai.urlProbability === null ? '—' : percent(analysis.ai.urlProbability)}
+                    note={analysis.ai.analyzedUrl ?? 'No link found'}
+                  />
+                  <AiStat
+                    label="Model contribution"
+                    value={`${Math.round(analysis.ai.score)}/100`}
+                    note="blended text + link"
+                  />
+                </div>
+
+                {analysis.ai.topTerms.length > 0 && (
+                  <div className="mt-4">
+                    <p className="text-[0.7rem] font-bold tracking-wide text-slate-400 uppercase">
+                      What influenced the model
+                    </p>
+                    <div className="mt-2 flex flex-wrap gap-1.5">
+                      {analysis.ai.topTerms.map((term) => (
+                        <code
+                          key={term}
+                          className="max-w-full truncate rounded bg-[#020915] px-2 py-1 text-[0.7rem] text-violet-200"
+                        >
+                          {term}
+                        </code>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <p className="mt-4 text-xs leading-relaxed text-slate-500">
+                  Holdout AUC: text {MODEL_INFO.text.metrics.rocAuc.toFixed(3)} · URL{' '}
+                  {MODEL_INFO.url.metrics.rocAuc.toFixed(3)}. Statistical signals can be wrong and new scams can be
+                  missed — verify through an official channel.
+                </p>
+              </div>
+
               <div className="mt-5 rounded-2xl border border-white/10 bg-[#07142a]/70 p-5">
                 <p className="mb-3 text-xs font-bold tracking-wide text-slate-400 uppercase">The text we checked</p>
                 <HighlightedText text={input} terms={terms} />
-                <p className="mt-3 text-xs text-slate-500">Highlighted words are the exact triggers behind the flags above.</p>
+                <p className="mt-3 text-xs text-slate-500">Highlighted words are the exact rule triggers behind the flags above.</p>
               </div>
             </div>
           )}

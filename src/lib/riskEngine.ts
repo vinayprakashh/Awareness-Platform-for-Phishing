@@ -1,7 +1,9 @@
 /**
- * Stateless, in-memory heuristic risk engine.
- * Nothing is sent to a server, logged, or persisted.
+ * Stateless, in-memory hybrid risk engine: transparent rules plus a locally
+ * trained AI model. Nothing is sent to a server, logged, or persisted.
  */
+import { analyzeAi, type AiResult } from './aiModel'
+import { extractUrls, parseUrl } from './urlUtils'
 
 export type Severity = 'low' | 'moderate' | 'high'
 
@@ -21,6 +23,7 @@ export interface Signal {
   weight: number
   evidence: string[]
   tip: string
+  source?: 'rule' | 'ai'
 }
 
 export interface Analysis {
@@ -29,6 +32,7 @@ export interface Analysis {
   summary: string
   signals: Signal[]
   steps: string[]
+  ai: AiResult
   elapsedMs: number
 }
 
@@ -176,8 +180,6 @@ const TRUSTED_DOMAINS = [
   'nic.in', 'amazon.in', 'netflix.com', 'cybercrime.gov.in',
 ]
 
-const URL_PATTERN = /\b(?:https?:\/\/|www\.)[^\s<>"'`]+|\b[a-z0-9-]+(?:[.[\]()]*(?:dot|\.))+[a-z0-9-]+(?:[^\s<>"'`]*)?\b/gi
-
 const CATEGORY_CAPS: Record<SignalCategory, number> = {
   'digital-arrest': 55,
   impersonation: 25,
@@ -201,27 +203,6 @@ function evidenceFor(pattern: RegExp, text: string, limit = 3): string[] {
     if (match[0].length === 0) re.lastIndex += 1
   }
   return found
-}
-
-function extractUrls(text: string): string[] {
-  const matches = text.match(URL_PATTERN) ?? []
-  const cleaned = matches
-    .map((url) => url.replace(/[.,;:!?'")\]}]+$/g, ''))
-    .filter((url) => url.length > 3)
-  return [...new Set(cleaned)].slice(0, 8)
-}
-
-function parseUrl(raw: string): { url: URL; secure: boolean } | null {
-  const normalized = raw
-    .replace(/\[\s*\.\s*\]|\(\s*dot\s*\)|\[\s*dot\s*\]/gi, '.')
-    .replace(/\s*(?:\[dot\]|\(dot\))\s*/gi, '.')
-  const secure = /^https:\/\//i.test(normalized)
-  const candidate = /^https?:\/\//i.test(normalized) ? normalized : `https://${normalized}`
-  try {
-    return { url: new URL(candidate), secure }
-  } catch {
-    return null
-  }
 }
 
 function hostnameFlags(raw: string): Signal[] {
@@ -381,12 +362,12 @@ function summarise(score: number, severity: Severity, signalCount: number): stri
 export function analyze(input: string): Analysis {
   const started = now()
   const text = (input ?? '').trim()
-  const signals: Signal[] = []
+  const ruleSignals: Signal[] = []
 
   for (const rule of RULES) {
     if (rule.pattern.test(text)) {
       const evidence = evidenceFor(rule.pattern, text)
-      signals.push({
+      ruleSignals.push({
         id: rule.id,
         label: rule.label,
         detail: rule.detail,
@@ -394,6 +375,7 @@ export function analyze(input: string): Analysis {
         weight: rule.weight,
         tip: rule.tip,
         evidence,
+        source: 'rule',
       })
     }
   }
@@ -401,27 +383,48 @@ export function analyze(input: string): Analysis {
   for (const rule of RULES) rule.pattern.lastIndex = 0
 
   for (const url of extractUrls(text)) {
-    signals.push(...hostnameFlags(url))
+    ruleSignals.push(...hostnameFlags(url).map((signal) => ({ ...signal, source: 'rule' as const })))
   }
 
-  const merged = mergeSignals(signals)
+  const ruleMerged = mergeSignals(ruleSignals)
   const categoryTotals = new Map<SignalCategory, number>()
-  for (const signal of merged) {
+  for (const signal of ruleMerged) {
     categoryTotals.set(signal.category, (categoryTotals.get(signal.category) ?? 0) + signal.weight)
   }
   const capped = [...categoryTotals.entries()].reduce(
     (sum, [category, total]) => sum + Math.min(total, CATEGORY_CAPS[category]),
     0,
   )
-  const score = text ? Math.min(100, Math.round(capped)) : 0
+  const ruleScore = text ? Math.min(100, Math.round(capped)) : 0
+
+  // The model is an independent second opinion; it never replaces the
+  // explainable rules, and its weight is deliberately capped at 38%.
+  const ai = analyzeAi(text)
+  const score = text ? Math.min(100, Math.round(0.62 * ruleScore + 0.38 * ai.score)) : 0
   const severity: Severity = score >= 55 ? 'high' : score >= 25 ? 'moderate' : 'low'
+
+  const signals = [...ruleMerged]
+  if (text && (ai.textProbability >= 0.5 || (ai.urlProbability ?? 0) >= 0.5)) {
+    const link = ai.urlProbability === null ? '' : `, link model ${Math.round(ai.urlProbability * 100)}%`
+    signals.push({
+      id: 'ai-model',
+      label: 'AI scam-pattern model',
+      detail: `The trained model rates this message ${Math.round(ai.textProbability * 100)}% likely to be a scam${link}.`,
+      category: 'phishing',
+      weight: 0,
+      evidence: ai.topTerms.slice(0, 4),
+      tip: 'A statistical signal from public phishing datasets — useful context, not proof. Verify independently.',
+      source: 'ai',
+    })
+  }
 
   return {
     score,
     severity,
-    summary: summarise(score, severity, merged.length),
-    signals: merged.sort((a, b) => b.weight - a.weight),
-    steps: stepsFor(severity, merged),
+    summary: summarise(score, severity, signals.length),
+    signals: signals.sort((a, b) => b.weight - a.weight),
+    steps: stepsFor(severity, signals),
+    ai,
     elapsedMs: Math.max(0.1, now() - started),
   }
 }

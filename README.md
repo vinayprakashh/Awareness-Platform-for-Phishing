@@ -1,6 +1,6 @@
 # SafeSignal — Cyber Security Awareness Platform
 
-A lightweight, browser-based web app that checks suspicious messages, call transcripts and links for phishing, digital arrest scams and malicious apps. It returns a 0–100 risk score, an explainable list of red flags, and clear next steps with official Indian cybercrime reporting channels.
+A lightweight, browser-based web app that checks suspicious messages, call transcripts and links for phishing, digital arrest scams and malicious apps. It combines an explainable rule engine with two locally trained AI models, then returns a 0–100 risk score, red flags with matched evidence, and clear next steps with official Indian cybercrime reporting channels.
 
 Built from the product requirements document for **Project #19** and uses selected [React Bits](https://github.com/DavidHDev/react-bits) components for the UI.
 
@@ -8,6 +8,7 @@ Built from the product requirements document for **Project #19** and uses select
 
 - **Instant analyzer (FR-01, FR-02):** paste text, a URL or a call script and get a score in milliseconds.
 - **Explainable red flags (FR-03):** each detected trigger is shown with the exact matched text, why it matters and its category.
+- **AI second opinion:** two compact TF-IDF + logistic-regression models (message and URL) trained on licensed public GitHub datasets; their scores, confidence and top influences are shown in plain language.
 - **Threat guides (FR-04):** plain-language modules for phishing, digital arrest scams and malicious apps with real-world examples.
 - **Safety checklist & helplines (FR-05):** five-step checklist, official channels (1930, cybercrime.gov.in, 112, 14567) and guidance if you already paid.
 - **Sample scam simulator (FR-06):** one-tap examples covering scams and a benign message.
@@ -16,17 +17,42 @@ Built from the product requirements document for **Project #19** and uses select
 
 ## Detection logic
 
+The analyzer is deliberately **hybrid** so that no single method decides the result.
+
+### 1. Transparent rules
+
 `src/lib/riskEngine.ts` contains a structured ruleset that checks:
 
 1. High-risk keywords and intent (digital arrest, CBI/ED impersonation, urgency, credential requests, advance fees, secrecy).
 2. Deceptive URLs (raw IP addresses, shorteners, suspicious TLDs, excessive subdomains, lookalike brand domains, non-HTTPS).
 3. Malicious app indicators (`.apk` downloads, unknown-source instructions, AnyDesk/TeamViewer/QuickSupport).
 
-Weights are capped per category and combined into a 0–100 score:
+Rule weights are capped per category to stop one clue from dominating.
+
+### 2. Local AI models
+
+`src/lib/aiModel.ts` runs two exported models entirely in the browser:
+
+- **Message model:** word, bigram and character n-grams over the pasted text.
+- **URL model:** character n-grams plus lexical features such as TLD, hyphens, digits, `@`, IP addresses and brand words.
+
+The final score is `round(0.62 × rule score + 0.38 × model score)`. The model is
+capped at 38% and can only add an explainable signal; it never hides or removes a
+rule-based red flag. Holdout results are in [`ml/metrics.json`](ml/metrics.json):
+
+| Model | Accuracy | Precision | Recall | F1 | ROC-AUC |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Message | 0.814 | 1.000 | 0.802 | 0.890 | 0.986 |
+| URL | 0.919 | 0.888 | 0.958 | 0.922 | 0.975 |
+
+### Score bands
 
 - **0–24:** Low
 - **25–54:** Moderate
 - **55–100:** High
+
+No network request, login, cookie or storage is involved. The model weights are
+static JSON files; your input is processed in memory and discarded.
 
 ## Getting started
 
@@ -35,8 +61,22 @@ npm install
 npm run dev      # local development
 npm run build    # type-check + production build into dist/
 npm run preview  # preview the production build
-npm test         # risk engine test suite
+npm test         # risk engine + AI model test suite
+npm run lint     # static checks
 ```
+
+### Retraining the models
+
+The exported weights are committed, so no training is needed to use the site.
+To reproduce or improve them, download the datasets listed in
+[`ml/SOURCES.md`](ml/SOURCES.md) into a local folder and run:
+
+```powershell
+$env:SAFESIGNAL_DATA='C:\path\to\downloaded\files'
+python ml/train_model.py
+```
+
+`ml/data/` is git-ignored so raw datasets are never published.
 
 ## Deployment
 
@@ -44,8 +84,8 @@ The Vite config uses `base: './'`, so the contents of `dist/` can be hosted on G
 
 ## Disclaimer
 
-The engine uses pattern-based heuristics. It can miss new scams and may flag harmless text. Always verify unexpected requests through official channels. This tool does not intercept calls or messages, analyze APK binaries, or store scan history.
+The analyzer combines pattern heuristics with statistical models. It cannot detect every cybercrime, can miss novel scams and may flag harmless text. Its scores are guidance, not proof. Always verify unexpected requests through official channels. This tool does not intercept calls or messages, analyze APK binaries, or store scan history.
 
 ## Acknowledgements
 
-UI animation components from [React Bits](https://github.com/DavidHDev/react-bits) are used under the MIT + Commons Clause license. See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+UI animation components from [React Bits](https://github.com/DavidHDev/react-bits) and the licensed training datasets are credited in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). Dataset details, citations and reproduction steps are in [`ml/SOURCES.md`](ml/SOURCES.md).
