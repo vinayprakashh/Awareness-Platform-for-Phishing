@@ -25,6 +25,7 @@ import StarBorder from './react-bits/StarBorder'
 import ScoreGauge from './ScoreGauge'
 import { MODEL_INFO } from '../lib/aiModel'
 import { firstClipboardImage, firstImageFile, imageIssue } from '../lib/imageIntake'
+import { warmOcrAssets } from '../lib/ocrPrefetch'
 import type { OcrProgress } from '../lib/ocr'
 import { analyze, type Analysis, type SignalCategory } from '../lib/riskEngine'
 import { useTheme } from '../lib/theme'
@@ -147,6 +148,10 @@ export default function Scanner() {
     revokePreview()
   }, [revokePreview])
 
+  useEffect(() => {
+    if (mode === 'screenshot') warmOcrAssets()
+  }, [mode])
+
   const clearImage = useCallback(() => {
     revokePreview()
     setImageUrl(null)
@@ -259,7 +264,7 @@ export default function Scanner() {
   const severity = analysis ? SEVERITY_META[analysis.severity] : null
 
   return (
-    <section id="scanner" className="relative mx-auto max-w-7xl px-5 py-20 sm:px-8 sm:py-28">
+    <section className="relative mx-auto max-w-7xl px-5 py-20 sm:px-8 sm:py-28">
       <div className="mx-auto max-w-3xl text-center">
         <span className="eyebrow">Free instant check</span>
         <h2 className="mt-4 text-3xl font-bold tracking-tight text-white sm:text-5xl">
@@ -313,6 +318,8 @@ export default function Scanner() {
               role="tab"
               aria-selected={mode === 'screenshot'}
               onClick={() => setMode('screenshot')}
+              onMouseEnter={warmOcrAssets}
+              onFocus={warmOcrAssets}
               className={`inline-flex flex-1 items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold transition ${
                 mode === 'screenshot' ? 'bg-sky-300 text-[#04101f]' : 'text-slate-400 hover:text-white'
               }`}
@@ -367,7 +374,6 @@ export default function Scanner() {
               <div
                 role="button"
                 tabIndex={0}
-                aria-label="Paste, drop or choose a screenshot"
                 onClick={() => fileInput.current?.click()}
                 onKeyDown={(event) => {
                   if (event.key === 'Enter' || event.key === ' ') {
@@ -467,6 +473,8 @@ export default function Scanner() {
               as="button"
               type="button"
               onClick={mode === 'text' ? runScan : runOcr}
+              onMouseEnter={mode === 'screenshot' ? warmOcrAssets : undefined}
+              onFocus={mode === 'screenshot' ? warmOcrAssets : undefined}
               disabled={scanning}
               color="#67e8f9"
               trailColor="#38bdf8"

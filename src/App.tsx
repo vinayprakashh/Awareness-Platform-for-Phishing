@@ -1,3 +1,4 @@
+import { lazy, Suspense, type ReactNode } from 'react'
 import {
   ArrowDown,
   ClipboardPaste,
@@ -7,13 +8,15 @@ import {
   Sparkles,
   Zap,
 } from 'lucide-react'
-import Aurora from './components/react-bits/Aurora'
-import BlurText from './components/react-bits/BlurText'
 import Header from './components/Header'
-import Scanner from './components/Scanner'
-import Guides from './components/Guides'
-import Safety from './components/Safety'
 import Footer from './components/Footer'
+import { useIdleReady, useNearViewport } from './lib/useNearViewport'
+
+const Aurora = lazy(() => import('./components/react-bits/Aurora'))
+const BlurText = lazy(() => import('./components/react-bits/BlurText'))
+const Scanner = lazy(() => import('./components/Scanner'))
+const Guides = lazy(() => import('./components/Guides'))
+const Safety = lazy(() => import('./components/Safety'))
 
 const STEPS = [
   {
@@ -33,7 +36,45 @@ const STEPS = [
   },
 ]
 
+const TAGLINE_CLASS = 'mt-4 text-2xl font-semibold text-sky-200 sm:text-3xl'
+const TAGLINE = 'Spot the scam before it spots you.'
+
+function SectionPlaceholder({ minHeight }: { minHeight: number }) {
+  return (
+    <div
+      className="mx-auto max-w-7xl px-5 py-20 sm:px-8 sm:py-28"
+      style={{ minHeight }}
+      aria-hidden="true"
+    >
+      <div className="h-3 w-32 rounded-full bg-white/5" />
+      <div className="mt-6 h-10 w-2/3 rounded-xl bg-white/5" />
+      <div className="mt-10 h-64 rounded-2xl bg-white/[0.02]" />
+    </div>
+  )
+}
+
+function DeferredSection({
+  id,
+  minHeight,
+  children,
+}: {
+  id: string
+  minHeight: number
+  children: ReactNode
+}) {
+  const { ref, visible } = useNearViewport<HTMLDivElement>('700px', id)
+  const placeholder = <SectionPlaceholder minHeight={minHeight} />
+
+  return (
+    <div id={id} ref={ref} style={visible ? undefined : { minHeight }}>
+      {visible ? <Suspense fallback={placeholder}>{children}</Suspense> : placeholder}
+    </div>
+  )
+}
+
 export default function App() {
+  const animationsReady = useIdleReady(900)
+
   return (
     <div className="min-h-screen bg-[#050c18] text-slate-100">
       <Header />
@@ -41,15 +82,19 @@ export default function App() {
       <main>
         <section id="top" className="relative overflow-hidden">
           <div className="hero-aurora pointer-events-none absolute inset-x-0 top-0 h-[720px] opacity-75" aria-hidden="true">
-            <Aurora
-              colorStops={['#0ea5e9', '#6366f1', '#a855f7', '#22d3ee']}
-              amplitude={1.1}
-              blend={0.65}
-              speed={0.7}
-              glow={0.75}
-              opacity={0.85}
-              mouseInteraction
-            />
+            {animationsReady && (
+              <Suspense fallback={null}>
+                <Aurora
+                  colorStops={['#0ea5e9', '#6366f1', '#a855f7', '#22d3ee']}
+                  amplitude={1.1}
+                  blend={0.65}
+                  speed={0.7}
+                  glow={0.75}
+                  opacity={0.85}
+                  mouseInteraction
+                />
+              </Suspense>
+            )}
           </div>
           <div className="hero-fade pointer-events-none absolute inset-x-0 top-0 h-[720px]" aria-hidden="true" />
 
@@ -66,13 +111,19 @@ export default function App() {
                   <br />
                   you click.
                 </h1>
-                <BlurText
-                  text="Spot the scam before it spots you."
-                  animateBy="words"
-                  direction="top"
-                  delay={110}
-                  className="mt-4 text-2xl font-semibold text-sky-200 sm:text-3xl"
-                />
+                {animationsReady ? (
+                  <Suspense fallback={<p className={TAGLINE_CLASS}>{TAGLINE}</p>}>
+                    <BlurText
+                      text={TAGLINE}
+                      animateBy="words"
+                      direction="top"
+                      delay={110}
+                      className={TAGLINE_CLASS}
+                    />
+                  </Suspense>
+                ) : (
+                  <p className={TAGLINE_CLASS}>{TAGLINE}</p>
+                )}
 
                 <p className="soft-text mt-6 max-w-xl text-base leading-relaxed sm:text-lg">
                   Paste a suspicious message, screenshot, call transcript or link. Get an instant risk score, the
@@ -162,7 +213,7 @@ export default function App() {
                   </span>
                   <div>
                     <p className="text-xs font-bold tracking-wide text-sky-300 uppercase">Step {index + 1}</p>
-                    <h3 className="mt-1 font-semibold text-white">{step.title}</h3>
+                    <h2 className="mt-1 font-semibold text-white">{step.title}</h2>
                     <p className="soft-text mt-1 text-sm leading-relaxed">{step.text}</p>
                   </div>
                 </div>
@@ -171,9 +222,15 @@ export default function App() {
           </div>
         </section>
 
-        <Scanner />
-        <Guides />
-        <Safety />
+        <DeferredSection id="scanner" minHeight={900}>
+          <Scanner />
+        </DeferredSection>
+        <DeferredSection id="learn" minHeight={780}>
+          <Guides />
+        </DeferredSection>
+        <DeferredSection id="safety" minHeight={820}>
+          <Safety />
+        </DeferredSection>
       </main>
 
       <Footer />

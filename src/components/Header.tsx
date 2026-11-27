@@ -27,7 +27,7 @@ export default function Header() {
       }`}
     >
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-4 sm:px-8">
-        <a href="#top" className="group flex items-center gap-3 rounded-lg" aria-label="VerifyPoint home">
+        <a href="#top" className="group flex items-center gap-3 rounded-lg">
           <span className="grid size-10 place-items-center rounded-xl bg-gradient-to-br from-sky-400 to-violet-500 text-[#04101f] shadow-lg shadow-sky-500/20">
             <ShieldCheck className="size-6" strokeWidth={2.4} />
           </span>

@@ -75,7 +75,7 @@ export default function Guides() {
   } as CSSProperties
 
   return (
-    <section id="learn" className="mx-auto max-w-7xl px-5 py-20 sm:px-8 sm:py-28">
+    <section className="mx-auto max-w-7xl px-5 py-20 sm:px-8 sm:py-28">
       <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
         <div className="max-w-2xl">
           <span className="eyebrow">Awareness guides</span>

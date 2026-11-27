@@ -64,7 +64,7 @@ const HELP_LINKS = [
 
 export default function Safety() {
   return (
-    <section id="safety" className="border-y border-white/5 bg-[#071225]/60">
+    <section className="border-y border-white/5 bg-[#071225]/60">
       <div className="mx-auto max-w-7xl px-5 py-20 sm:px-8 sm:py-28">
         <div className="max-w-2xl">
           <span className="eyebrow">Stay safe</span>

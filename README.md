@@ -23,11 +23,14 @@ The analyzer is deliberately **hybrid** so that no single method decides the res
 
 ### 0. Screenshot intake (optional)
 
-`src/lib/ocr.ts` lazily loads a bundled Tesseract.js worker, core and English +
-Hindi language data from `public/tesseract/`. OCR runs in a Web Worker on your
-device; the image is never uploaded, cached or stored. The recognised text is
-shown back to you and passed through the exact same text and link checks as a
-pasted message.
+`src/lib/ocr.ts` lazily loads a bundled Tesseract.js worker, WebAssembly core and
+English + Hindi language data from `public/tesseract/`. The core is shipped as a
+small JavaScript loader plus a separate `.wasm` binary (chosen at runtime with
+`wasm-feature-detect`), instead of one large embedded `.wasm.js` file. OCR runs
+in a Web Worker on your device; the image is never uploaded, cached or stored.
+The recognised text is shown back to you and passed through the exact same text
+and link checks as a pasted message. Hovering or focusing the screenshot tab
+prefetches the local OCR payload so the first scan starts faster.
 
 ### 1. Transparent rules
 
@@ -89,6 +92,23 @@ python ml/train_model.py
 ```
 
 `ml/data/` is git-ignored so raw datasets are never published.
+
+## Performance
+
+- **Code splitting:** the hero renders immediately while animation libraries
+  (`Aurora`, `BlurText`) load after idle. The Scanner, Guides and Safety
+  sections are mounted just before they scroll into view, so the initial bundle
+  stays small. Route-like chunks are fetched on demand with `Suspense`
+  placeholders that prevent layout shift.
+- **Deferred OCR:** Tesseract, its core and language data are only fetched when
+  the screenshot tab is approached, and the worker is created once and reused.
+- **Cache headers:** `public/_headers` (Netlify / Cloudflare Pages) and
+  `vercel.json` set immutable caching for hashed assets and week-long caching
+  for OCR files. GitHub Pages ignores these configs, and compression depends on
+  the host.
+- **Web Vitals:** `src/lib/webVitals.ts` records TTFB, FCP, LCP, CLS, INP and
+  long tasks in memory only. Append `?vitals=1` to any URL to print a snapshot
+  to the browser console. Nothing is sent to a server or written to storage.
 
 ## Deployment
 

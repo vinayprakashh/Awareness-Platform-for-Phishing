@@ -1,8 +1,9 @@
 /**
- * Local screenshot OCR. Tesseract's worker, core and language data are served
- * from /public/tesseract, so no image or OCR request leaves the browser.
+ * Local screenshot OCR. Tesseract's worker, WebAssembly core and language data
+ * are served from /public/tesseract, so no image or OCR request leaves the browser.
  */
 import { cleanOcrText } from './imageIntake'
+import { assetUrl, selectCore } from './ocrPrefetch'
 
 type TesseractWorker = Awaited<ReturnType<typeof import('tesseract.js').createWorker>>
 
@@ -19,17 +20,13 @@ export interface OcrResult {
 let workerPromise: Promise<TesseractWorker> | null = null
 let progressListener: ((progress: OcrProgress) => void) | null = null
 
-function assetUrl(path: string): string {
-  return new URL(`tesseract/${path}`, document.baseURI).href
-}
-
 function getWorker(): Promise<TesseractWorker> {
   if (!workerPromise) {
     workerPromise = (async () => {
-      const tesseract = await import('tesseract.js')
+      const [core, tesseract] = await Promise.all([selectCore(), import('tesseract.js')])
       const worker = await tesseract.createWorker('eng+hin', 1, {
         workerPath: assetUrl('worker.min.js'),
-        corePath: assetUrl(''),
+        corePath: assetUrl(`${core}.js`),
         langPath: assetUrl(''),
         workerBlobURL: false,
         gzip: true,

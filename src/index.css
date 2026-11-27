@@ -58,7 +58,7 @@ html[data-theme="light"] {
   --color-rose: #be123c;
   --vp-soft: #1e293b;
   --vp-subtle: #64748b;
-  --vp-faint: #94a3b8;
+  --vp-faint: #475569;
   --vp-surface: #ffffff;
   --vp-field: #ffffff;
   --vp-raised: #f1f5f9;
@@ -143,12 +143,23 @@ html[data-theme="light"] :focus-visible {
   color: var(--vp-brand);
 }
 
+.hero-aurora {
+  background:
+    radial-gradient(ellipse at 20% 20%, rgba(14, 165, 233, 0.22), transparent 45%),
+    radial-gradient(ellipse at 80% 30%, rgba(139, 92, 246, 0.18), transparent 48%);
+}
+
 .hero-fade {
   background: linear-gradient(to bottom, transparent, var(--vp-fade-mid) 45%, var(--color-night));
 }
 
 html[data-theme="light"] .hero-aurora {
   opacity: 0.3;
+}
+
+/* Keep navigation readable in both themes even if a theme class is briefly absent. */
+header nav a {
+  color: var(--vp-soft);
 }
 
 mark.signal-highlight {
